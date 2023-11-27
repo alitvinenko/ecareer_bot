@@ -38,7 +38,8 @@ func (h *ProfileCommandHandler) baseHandle(c tele.Context) error {
 ✔️[СТО, CIO, CDTO](https://t.me/c/1969859487/2247/5618)
 ✔️[СОО](https://t.me/c/1969859487/2249/5623)
 ✔️[РМО](https://t.me/c/1969859487/2251/5616)
-✔️[Свой бизнес](https://t.me/c/1969859487/2252/5625)`
+✔️[Свой бизнес, консалтинг](https://t.me/c/1969859487/2252/9537)
+✔️[Фаундеры ИТ стартапов](https://t.me/c/1969859487/2252/9538)`
 
 	selector := &tele.ReplyMarkup{}
 	selector.Inline(
