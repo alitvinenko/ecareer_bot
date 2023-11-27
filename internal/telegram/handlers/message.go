@@ -41,23 +41,27 @@ func (h *MessageHandler) Handle(c tele.Context) error {
 		_ = c.Reply("При сохранении анкеты произошел сбой. Повторите, пожалуйста, еще раз.")
 	}
 
-	message := `Спасибо! Ваша анкета сохранена. 
-
-Теперь каждый участник группы может просмотреть вашу анкету выполнив команду /profile %s.
-
-*Содержимое вашей анкеты:*
-
-%s`
+	msgTemplate := "Спасибо! Ваша анкета сохранена.\n" +
+		"\n" +
+		"Теперь каждый участник группы может просмотреть вашу анкету выполнив команду `/profile %s`.\n" +
+		"\n" +
+		"*Содержимое вашей анкеты:*\n" +
+		"\n" +
+		"%s"
+	msg := fmt.Sprintf(msgTemplate, c.Sender().Username, data)
 
 	selector := &tele.ReplyMarkup{}
 	selector.Inline(
 		selector.Row(buttons.BackToStartBtn),
 	)
 
-	_ = c.Reply(fmt.Sprintf(message, c.Sender().Username, data), &tele.SendOptions{
+	err = c.Reply(msg, &tele.SendOptions{
 		ParseMode:   tele.ModeMarkdown,
 		ReplyMarkup: selector,
 	})
+	if err != nil {
+		log.Printf("error on reply: %v", err)
+	}
 
 	return nil
 }

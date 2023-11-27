@@ -48,6 +48,7 @@ func (a *Daemon) setBotHandlers() error {
 	clubMemberService := a.serviceProvider.getClubMemberService()
 	profileService := a.serviceProvider.getProfileService()
 
+	joinUserHandler := handlers.NewJoinUserHandler(clubMemberService)
 	startCommandHandler := commands.NewStartCommandHandler(clubMemberService)
 	addProfileHandler := commands.NewAddProfileCommandHandler(profileService)
 	cancelAddProfileHandler := commands.NewCancelAddProfileCommandHandler(profileService)
@@ -61,6 +62,7 @@ func (a *Daemon) setBotHandlers() error {
 	b.Handle("/profile", profileCommandHandler.Handle)
 
 	b.Handle(tele.OnText, messageHandler.Handle)
+	b.Handle(tele.OnUserJoined, joinUserHandler.Handle)
 
 	b.Handle(&buttons.StartBtn, startCommandHandler.Handle)
 	b.Handle(&buttons.AddProfileBtn, addProfileHandler.Handle)

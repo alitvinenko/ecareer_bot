@@ -1,11 +1,9 @@
 package commands
 
 import (
-	"context"
 	"github.com/alitvinenko/ecareer_bot/internal/service"
 	"github.com/alitvinenko/ecareer_bot/internal/telegram/menu/buttons"
 	tele "gopkg.in/telebot.v3"
-	"log"
 )
 
 type StartCommandHandler struct {
@@ -17,17 +15,8 @@ func NewStartCommandHandler(service service.ClubMemberService) *StartCommandHand
 }
 
 func (h *StartCommandHandler) Handle(c tele.Context) error {
-	// register new club member
-	if !c.Message().Sender.IsBot {
-		userID := c.Message().Sender.ID
-		username := c.Message().Sender.Username
-
-		log.Printf("add a new club member: %d (%d), %s", userID, int(userID), username)
-
-		err := h.service.AddIfNotExists(context.Background(), int(userID), username)
-		if err != nil {
-			log.Printf("error on add a new club member: %v", err)
-		}
+	if c.Sender().IsBot {
+		return nil
 	}
 
 	const message = `Привет, давай начнем работу.

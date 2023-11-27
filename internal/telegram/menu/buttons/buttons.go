@@ -2,37 +2,46 @@ package buttons
 
 import "gopkg.in/telebot.v3"
 
+const (
+	startUnique        = "start"
+	addProfileUnique   = "addprofile"
+	profileUnique      = "profile"
+	firstLessonsUnique = "firstlessons"
+	clubNavigateUnique = "club_navigate"
+	feedbackUnique     = "feedback"
+)
+
 var (
 	StartBtn = telebot.Btn{
 		Text:   "В меню",
-		Unique: "start",
+		Unique: startUnique,
 	}
 	BackToStartBtn = telebot.Btn{
 		Text:   "<< Вернуться в меню",
-		Unique: "start",
+		Unique: startUnique,
 	}
 	AddProfileBtn = telebot.Btn{
 		Text:   "📣 Заполнить визитку",
-		Unique: "addprofile",
+		Unique: addProfileUnique,
 	}
 	ProfileBtn = telebot.Btn{
 		Text:   "👤 Визитки участников",
-		Unique: "profile",
+		Unique: profileUnique,
 	}
 	FirstLessonsBtn = telebot.Btn{
 		Text:   "Список вводных уроков",
-		Unique: "firstlessons",
+		Unique: firstLessonsUnique,
 	}
 	ClubNavigateBtn = telebot.Btn{
 		Text:   "Навигатор клуба",
-		Unique: "club_navigate",
+		Unique: clubNavigateUnique,
 	}
 	BackToClubNavigateBtn = telebot.Btn{
 		Text:   "< Вернуться в навигатор",
-		Unique: "club_navigate",
+		Unique: clubNavigateUnique,
 	}
 	FeedbackBtn = telebot.Btn{
 		Text:   "Пожелания",
-		Unique: "feedback",
+		Unique: feedbackUnique,
 	}
 )
