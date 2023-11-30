@@ -23,18 +23,19 @@ func (s service) RegisterNewMember(ctx context.Context, id int, username string)
 	if err != nil {
 		return nil, e.Wrap("error on load club member", err)
 	}
-	if clubMember == nil {
-		clubMember = &model.ClubMember{
-			ID:       id,
-			Username: username,
-			Profile: &model.Profile{
-				ID: id,
-			},
-		}
+	if clubMember != nil {
+		return clubMember, nil
 	}
 
-	err = s.repository.Update(ctx, clubMember)
-	if err != nil {
+	clubMember = &model.ClubMember{
+		ID:       id,
+		Username: username,
+		Profile: &model.Profile{
+			ID: id,
+		},
+	}
+
+	if err = s.repository.Create(ctx, clubMember); err != nil {
 		return nil, e.Wrap("error on save new club member", err)
 	}
 
