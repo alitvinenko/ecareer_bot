@@ -9,34 +9,26 @@ import (
 	"log"
 )
 
-var addProfileYesBtn = tele.Btn{
-	Text:   "Хочу прислать данные анкеты",
-	Unique: "addprofile_yes",
-}
-
 type addProfileCommandHandler struct {
-	profiles service.ProfileService
+	clubMemberService service.ClubMemberService
 }
 
-func NewAddProfileCommandHandler(profiles service.ProfileService) *addProfileCommandHandler {
-	return &addProfileCommandHandler{profiles: profiles}
+func NewAddProfileCommandHandler(clubMemberService service.ClubMemberService) *addProfileCommandHandler {
+	return &addProfileCommandHandler{clubMemberService: clubMemberService}
 }
 
 func (h *addProfileCommandHandler) Handle(c tele.Context) error {
 	if c.Message().Chat.Type != tele.ChatPrivate {
-		return c.Send("Заполнить анкету вы можете только в приватном чате со мной")
+		return c.Send("Заполнить анкету ты можешь только в приватном чате со мной")
 	}
 
 	ctx := context.Background()
-	userID := int(c.Sender().ID)
 
-	profile, err := h.profiles.GetOrCreate(ctx, userID)
+	clubMember, err := h.clubMemberService.FindMemberByUsername(ctx, c.Sender().Username)
 	if err != nil {
 		log.Printf("error on load profile: %v", err)
 		return c.Send("Ошибка на сервере")
 	}
-
-	c.Bot().Handle(&addProfileYesBtn, h.processHandle)
 
 	const message = `Заполни визитку о себе - и я представлю тебя другим резидентам 🥳 Ты можешь изменить визитку в любой момент прислав мне новый текст визитки по кнопке "Заполнить визитку".
 Расскажу, кто с тобой из одного города, ниши, у кого такая же должность и карьерные или бизнес планы, есть ли у тебя тёзки и однофамильцы.
@@ -58,15 +50,15 @@ Project ➡️ Head of PMO ➡️ CEO
 ✔️Хобби
 ✔️Ссылка на профиль Линкедин 😉
 
-Для отмены заполнения напишите /cancel`
+Для отмены заполнения выполни команду /cancel`
 
 	o := &tele.SendOptions{
 		ParseMode: tele.ModeMarkdown,
 	}
-	if profile.Data == "" {
+	if clubMember.Profile.Empty() {
 		selector := &tele.ReplyMarkup{}
 		selector.Inline(
-			selector.Row(addProfileYesBtn),
+			selector.Row(buttons.AddProfileConfirmBtn),
 			selector.Row(buttons.BackToStartBtn),
 		)
 
@@ -81,12 +73,12 @@ Project ➡️ Head of PMO ➡️ CEO
 		_ = c.Send(message, o)
 	}
 
-	if profile.Data != "" {
-		message := fmt.Sprintf("У меня уже есть твоя анкета. Ты хочешь ее заполнить снова?\n\n%s", profile.Data)
+	if !clubMember.Profile.Empty() {
+		message := fmt.Sprintf("У меня уже есть твоя анкета. Ты хочешь ее заполнить снова?\n\n%s", clubMember.Profile.Data)
 
 		selector := &tele.ReplyMarkup{}
 		selector.Inline(
-			selector.Row(addProfileYesBtn),
+			selector.Row(buttons.AddProfileConfirmBtn),
 			selector.Row(buttons.BackToStartBtn),
 		)
 
@@ -99,25 +91,24 @@ Project ➡️ Head of PMO ➡️ CEO
 	return nil
 }
 
-func (h *addProfileCommandHandler) processHandle(c tele.Context) error {
+func (h *addProfileCommandHandler) AddProfileConfirmHandle(c tele.Context) error {
 	ctx := context.Background()
-	userID := int(c.Sender().ID)
 
-	profile, err := h.profiles.GetOrCreate(ctx, userID)
+	clubMember, err := h.clubMemberService.FindMemberByUsername(ctx, c.Sender().Username)
 	if err != nil {
 		log.Printf("error on load profile: %v", err)
 		return c.Send("Ошибка на сервере")
 	}
 
-	err = h.profiles.StartWaitingProfileData(ctx, profile)
+	err = h.clubMemberService.StartWaitingProfileData(ctx, clubMember.ID)
 	if err != nil {
 		log.Printf("error on start waiting: %v", err)
 		return c.Send("Ошибка на сервере")
 	}
 
-	message := `Отлично! Теперь введите данные своей анкеты.
+	message := `Отлично! Теперь пришли мне данные своей анкеты.
 
-Если вы передумали и не хотите заполнять анкету, выполните команду /cancel. В противном случае, любое ваше сообщение я буду считать данными вашей анкеты.`
+Если ты передумал и не хочешь заполнять анкету, выполни команду /cancel. В противном случае любое твое сообщение я буду считать данными анкеты.`
 	return c.Reply(message, &tele.SendOptions{
 		ParseMode: tele.ModeMarkdown,
 	})

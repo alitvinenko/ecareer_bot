@@ -9,20 +9,22 @@ import (
 )
 
 type cancelAddProfileCommandHandler struct {
-	profiles service.ProfileService
+	clubMemberService service.ClubMemberService
 }
 
-func NewCancelAddProfileCommandHandler(profiles service.ProfileService) *cancelAddProfileCommandHandler {
-	return &cancelAddProfileCommandHandler{profiles: profiles}
+func NewCancelAddProfileCommandHandler(clubMemberService service.ClubMemberService) *cancelAddProfileCommandHandler {
+	return &cancelAddProfileCommandHandler{clubMemberService: clubMemberService}
 }
 
 func (h *cancelAddProfileCommandHandler) Handle(c tele.Context) error {
 	ctx := context.Background()
 	userID := c.Sender().ID
 
-	err := h.profiles.StopWaitingProfileData(ctx, int(userID))
+	err := h.clubMemberService.StopWaitingProfileData(ctx, int(userID))
 	if err != nil {
 		log.Printf("error on stop waiting: %v", err)
+
+		return c.Send("Отменить заполнение анкеты не удалось. Обратитесь в поддержку.")
 	}
 
 	selector := &tele.ReplyMarkup{}

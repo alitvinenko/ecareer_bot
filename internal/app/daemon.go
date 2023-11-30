@@ -46,15 +46,14 @@ func (a *Daemon) setBotHandlers() error {
 	b := a.serviceProvider.getTgBot()
 
 	clubMemberService := a.serviceProvider.getClubMemberService()
-	profileService := a.serviceProvider.getProfileService()
 
 	joinUserHandler := handlers.NewJoinUserHandler(clubMemberService)
 	startCommandHandler := commands.NewStartCommandHandler(clubMemberService)
-	addProfileHandler := commands.NewAddProfileCommandHandler(profileService)
-	cancelAddProfileHandler := commands.NewCancelAddProfileCommandHandler(profileService)
-	profileCommandHandler := commands.NewProfileCommandHandler(clubMemberService, profileService)
+	addProfileHandler := commands.NewAddProfileCommandHandler(clubMemberService)
+	cancelAddProfileHandler := commands.NewCancelAddProfileCommandHandler(clubMemberService)
+	profileCommandHandler := commands.NewProfileCommandHandler(clubMemberService)
 	clubNavigatorHandler := handlers.NewNavigator()
-	messageHandler := handlers.NewMessageHandler(profileService)
+	messageHandler := handlers.NewMessageHandler(clubMemberService)
 
 	b.Handle("/start", startCommandHandler.Handle)
 	b.Handle("/addprofile", addProfileHandler.Handle)
@@ -66,6 +65,7 @@ func (a *Daemon) setBotHandlers() error {
 
 	b.Handle(&buttons.StartBtn, startCommandHandler.Handle)
 	b.Handle(&buttons.AddProfileBtn, addProfileHandler.Handle)
+	b.Handle(&buttons.AddProfileConfirmBtn, addProfileHandler.AddProfileConfirmHandle)
 	b.Handle(&buttons.FeedbackBtn, commands.FeedbackHandler)
 	b.Handle(&buttons.FirstLessonsBtn, commands.FirstLessonsHandler)
 	b.Handle(&buttons.ProfileBtn, profileCommandHandler.Handle)

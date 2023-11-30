@@ -6,12 +6,8 @@ import (
 )
 
 type ClubMemberRepository interface {
+	Create(ctx context.Context, member *model.ClubMember) error
 	Get(ctx context.Context, ID int) (*model.ClubMember, error)
 	GetByUsername(ctx context.Context, username string) (*model.ClubMember, error)
-	AddIfNotExists(ctx context.Context, clubMember *model.ClubMember) error
-}
-
-type ProfileRepository interface {
-	Get(ctx context.Context, ID int) (*model.Profile, error)
-	Save(ctx context.Context, profile *model.Profile) error
+	Update(ctx context.Context, member *model.ClubMember) error
 }

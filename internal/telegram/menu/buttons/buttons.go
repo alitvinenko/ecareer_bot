@@ -3,12 +3,13 @@ package buttons
 import "gopkg.in/telebot.v3"
 
 const (
-	startUnique        = "start"
-	addProfileUnique   = "addprofile"
-	profileUnique      = "profile"
-	firstLessonsUnique = "firstlessons"
-	clubNavigateUnique = "club_navigate"
-	feedbackUnique     = "feedback"
+	startUnique             = "start"
+	addProfileUnique        = "addprofile"
+	addProfileConfirmUnique = "addprofile_confirm"
+	profileUnique           = "profile"
+	firstLessonsUnique      = "firstlessons"
+	clubNavigateUnique      = "club_navigate"
+	feedbackUnique          = "feedback"
 )
 
 var (
@@ -21,8 +22,12 @@ var (
 		Unique: startUnique,
 	}
 	AddProfileBtn = telebot.Btn{
-		Text:   "📣 Заполнить визитку",
+		Text:   "📣 Твоя визитка",
 		Unique: addProfileUnique,
+	}
+	AddProfileConfirmBtn = telebot.Btn{
+		Text:   "Хочу прислать данные анкеты",
+		Unique: "addprofile_yes",
 	}
 	ProfileBtn = telebot.Btn{
 		Text:   "👤 Визитки участников",

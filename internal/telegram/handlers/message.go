@@ -5,53 +5,57 @@ import (
 	"errors"
 	"fmt"
 	"github.com/alitvinenko/ecareer_bot/internal/service"
-	"github.com/alitvinenko/ecareer_bot/internal/service/profile"
 	"github.com/alitvinenko/ecareer_bot/internal/telegram/menu/buttons"
 	tele "gopkg.in/telebot.v3"
 	"log"
 )
 
 type MessageHandler struct {
-	profileService service.ProfileService
+	clubMemberService service.ClubMemberService
 }
 
-func NewMessageHandler(profileService service.ProfileService) *MessageHandler {
-	return &MessageHandler{profileService: profileService}
+func NewMessageHandler(clubMemberService service.ClubMemberService) *MessageHandler {
+	return &MessageHandler{clubMemberService: clubMemberService}
 }
 
 func (h *MessageHandler) Handle(c tele.Context) error {
 	if c.Message() == nil || c.Message().Text == "" {
 		return nil
 	}
-	if c.Message().Chat.Type != tele.ChatPrivate {
-		return c.Send("Заполнить анкету вы можете только в приватном чате со мной")
+	if !c.Message().Private() {
+		return c.Send("Заполнить анкету ты можешь только в приватном чате со мной")
 	}
 
 	userID := int(c.Sender().ID)
 	data := c.Message().Text
 
-	err := h.profileService.SaveProfileData(context.Background(), userID, data)
+	err := h.clubMemberService.UpdateProfile(context.Background(), userID, data)
 	if err != nil {
 		log.Printf("error on save profile data: %v", err)
 
-		if errors.Is(err, profile.NotWaitingForAnswerErr) {
+		if errors.Is(err, service.NotWaitingForAnswerErr) {
 			return nil
 		}
 
-		_ = c.Reply("При сохранении анкеты произошел сбой. Повторите, пожалуйста, еще раз.")
+		_ = c.Reply("При сохранении анкеты произошел сбой. Повтори, пожалуйста, еще раз.")
+
+		return nil
 	}
 
-	msgTemplate := "Спасибо! Ваша анкета сохранена.\n" +
+	msgTemplate := "Спасибо! Твоя анкета сохранена.\n" +
 		"\n" +
-		"Теперь каждый участник группы может просмотреть вашу анкету выполнив команду `/profile %s`.\n" +
+		"Теперь каждый участник группы может просмотреть ее выполнив команду `/profile %s`.\n" +
 		"\n" +
-		"*Содержимое вашей анкеты:*\n" +
+		"*Содержимое твоей анкеты:*\n" +
 		"\n" +
-		"%s"
+		"```" +
+		"%s" +
+		"```"
 	msg := fmt.Sprintf(msgTemplate, c.Sender().Username, data)
 
 	selector := &tele.ReplyMarkup{}
 	selector.Inline(
+		selector.Row(buttons.AddProfileConfirmBtn),
 		selector.Row(buttons.BackToStartBtn),
 	)
 

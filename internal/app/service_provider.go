@@ -5,10 +5,8 @@ import (
 	"github.com/alitvinenko/ecareer_bot/internal/database"
 	"github.com/alitvinenko/ecareer_bot/internal/repository"
 	"github.com/alitvinenko/ecareer_bot/internal/repository/club_member"
-	"github.com/alitvinenko/ecareer_bot/internal/repository/profile"
 	"github.com/alitvinenko/ecareer_bot/internal/service"
 	club_member2 "github.com/alitvinenko/ecareer_bot/internal/service/club_member"
-	profile2 "github.com/alitvinenko/ecareer_bot/internal/service/profile"
 	tele "gopkg.in/telebot.v3"
 	"gorm.io/gorm"
 	"log"
@@ -23,10 +21,8 @@ type serviceProvider struct {
 	db *gorm.DB
 
 	clubMemberRepository repository.ClubMemberRepository
-	profileRepository    repository.ProfileRepository
 
 	clubMemberService service.ClubMemberService
-	profileService    service.ProfileService
 }
 
 func newServiceProvider() *serviceProvider {
@@ -91,16 +87,6 @@ func (s serviceProvider) getClubMemberRepository() repository.ClubMemberReposito
 	return s.clubMemberRepository
 }
 
-func (s serviceProvider) getProfileRepository() repository.ProfileRepository {
-	if s.profileRepository != nil {
-		return s.profileRepository
-	}
-
-	s.profileRepository = profile.NewRepository(s.getDB())
-
-	return s.profileRepository
-}
-
 func (s *serviceProvider) getClubMemberService() service.ClubMemberService {
 	if s.clubMemberService != nil {
 		return s.clubMemberService
@@ -109,14 +95,4 @@ func (s *serviceProvider) getClubMemberService() service.ClubMemberService {
 	s.clubMemberService = club_member2.NewService(s.getClubMemberRepository())
 
 	return s.clubMemberService
-}
-
-func (s *serviceProvider) getProfileService() service.ProfileService {
-	if s.profileService != nil {
-		return s.profileService
-	}
-
-	s.profileService = profile2.NewService(s.getClubMemberRepository(), s.getProfileRepository())
-
-	return s.profileService
 }

@@ -24,9 +24,9 @@ func (h *JoinUserHandler) Handle(c tele.Context) error {
 	userID := int(c.Message().UserJoined.ID)
 	username := c.Message().UserJoined.Username
 
-	err := h.clubMemberService.AddIfNotExists(context.Background(), userID, username)
+	_, err := h.clubMemberService.RegisterNewMember(context.Background(), userID, username)
 	if err != nil {
-		log.Printf("error on load or create a new chat member: %v", err)
+		log.Printf("error on register new club member: %v", err)
 
 		return c.Reply("При добавлении нового члена клуба произошла ошибка")
 	}
